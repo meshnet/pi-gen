@@ -2,6 +2,8 @@
 
 install -m 644 files/sources.list ${ROOTFS_DIR}/etc/apt/
 install -m 644 files/raspi.list ${ROOTFS_DIR}/etc/apt/sources.list.d/
+mkdir -p -m 644 ${ROOTFS_DIR}/etc/dpkg/dpkg.conf.d/
+install -m 644 files/01_nodoc ${ROOTFS_DIR}/etc/dpkg/dpkg.conf.d/
 
 if [ -n "$APT_PROXY" ]; then
 	install -m 644 files/51cache ${ROOTFS_DIR}/etc/apt/apt.conf.d/51cache
