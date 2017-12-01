@@ -5,3 +5,12 @@ SKIP
 .pc
 *-pc
 apt-cacher-ng/
+
+#Swap files
+*.so
+*.log
+*.out
+*~
+*.swp
+*.DS_Store
+*.lock
