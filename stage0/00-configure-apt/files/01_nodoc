@@ -9,3 +9,9 @@ path-exclude=/usr/share/man/*
 # Delete docs, keep copyright
 path-exclude=/usr/share/doc/*
 path-include=/usr/share/doc/*/copyright
+
+# Delete more documentation stuff
+path-exclude /usr/share/groff/*
+path-exclude /usr/share/info/*
+path-exclude /usr/share/lintian/*
+path-exclude /usr/share/linda/*
