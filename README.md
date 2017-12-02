@@ -26,12 +26,19 @@ environment variables.
 
 The following environment variables are supported:
 
-* `IMG_NAME` **required** (Default: unset)
+* `IMG_NAME` (Default: NodeOS)
 
-   The name of the image to build with the current stage directories.  Setting
-   `IMG_NAME=Raspbian` is logical for an unmodified RPi-Distro/pi-gen build,
+   The name of the image to build with the current stage directories.  This is
+   set to `IMG_NAME=NodeOS` by default for an unmodified meshnet/pi-gen build,
    but you should use something else for a customized version.  Export files
    in stages may add suffixes to `IMG_NAME`.
+
+* `DEBUG` (Default: 0)
+
+   Setting this to 1 will execute the debug stages after executing the normal
+   stages.  Debug stages work similar to normal stages except that export files
+   in these stages will only be used on debug builds.  With this set to 1 both
+   a normal and a debug build will be exported.
 
 * `APT_PROXY` (Default: unset)
 
@@ -80,6 +87,11 @@ vi config         # Edit your config file. See above.
 If everything goes well, your finished image will be in the `deploy/` folder.
 You can then remove the build container with `docker rm -v pigen_work`
 
+You can also run a debug build to get an image containing a few debug helpers:
+```bash
+DEBUG=1 ./build-docker.sh
+```
+
 If something breaks along the line, you can edit the corresponding scripts, and
 continue:
 
@@ -100,7 +112,8 @@ solution).
 
 The build of Raspbian is divided up into several stages for logical clarity
 and modularity.  This causes some initial complexity, but it simplifies
-maintenance and allows for more easy customization.
+maintenance and allows for more easy customization. NodeOS stays close to
+the original Raspbian during stages 0-2.
 
 * **Stage 0** - bootstrap.  The primary purpose of this stage is to create a
    usable filesystem.  This is accomplished largely through the use of
@@ -126,14 +139,15 @@ maintenance and allows for more easy customization.
    creates necessary groups and gives the pi user access to sudo and the
    standard console hardware permission groups.
 
-   There are a few tools that may not make a whole lot of sense here for
-   development purposes on a minimal system such as basic Python and Lua
-   packages as well as the `build-essential` package.  They are lumped right
-   in with more essential packages presently, though they need not be with
-   pi-gen.  These are understandable for Raspbian's target audience, but if
-   you were looking for something between truly minimal and Raspbian-Lite,
-   here's where you start trimming.
-   _This is where NodeOS stops._
+* **Stage 3** - cleanup.  This stage removes data like documentation that is
+   considered unnecessary for a production ready image. If you want to keep
+   this data you can skip this stage but be warned that this will just not
+   delete existing data, documentation from packages installed throughout these
+   stages or on a running system will not be kept after installation due to
+   the `01_nodoc` file created in stage 0
+
+* **Debug 0** - debug packages.  This stage installs helpful packages like ssh
+   and gdb
 
 ### Stage specification
 
@@ -141,17 +155,14 @@ If you wish to build up to a specified stage (such as building up to stage 2
 for a lite system), place an empty file named `SKIP` in each of the `./stage`
 directories you wish not to include.
 
-Then remove the `EXPORT*` files from `./stage4` (if building up to stage 2) or
-from `./stage2` (if building a minimal system).
+Then remove the `EXPORT*` files from stages after the desired one if any exist.
 
 ```bash
-# Example for building a lite system
-echo "IMG_NAME='Raspbian'" > config
-touch ./stage3/SKIP ./stage4/SKIP ./stage5/SKIP
-rm stage4/EXPORT*
+# Example for building a lite system keeping some documentation
+touch ./stage3/SKIP
 sudo ./build.sh  # or ./build-docker.sh
 ```
 
 If you wish to build further configurations upon (for example) the lite
-system, you can also delete the contents of `./stage3` and `./stage4` and
-replace with your own contents in the same format.
+system, you can also delete the contents of `./stage3` and replace with your
+own contents in the same format.

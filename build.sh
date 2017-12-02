@@ -135,6 +135,7 @@ export SCRIPT_DIR="${BASE_DIR}/scripts"
 export WORK_DIR=${WORK_DIR:-"${BASE_DIR}/work/${IMG_DATE}-${IMG_NAME}"}
 export DEPLOY_DIR=${DEPLOY_DIR:-"${BASE_DIR}/deploy"}
 export LOG_FILE="${WORK_DIR}/build.log"
+export DEBUG=${DEBUG:-0}
 
 export CLEAN
 export IMG_NAME
@@ -165,11 +166,22 @@ source ${SCRIPT_DIR}/dependencies_check
 dependencies_check ${BASE_DIR}/depends
 
 mkdir -p ${WORK_DIR}
+
+if [ "$DEBUG" = "1" ]; then
+	log "Got DEBUG=1; Will run debug stages"
+fi
+
 log "Begin ${BASE_DIR}"
 
 for STAGE_DIR in ${BASE_DIR}/stage*; do
 	run_stage
 done
+
+if [ "$DEBUG" = "1" ]; then
+	for STAGE_DIR in ${BASE_DIR}/debug*; do
+		run_stage
+	done
+fi
 
 CLEAN=1
 for EXPORT_DIR in ${EXPORT_DIRS}; do
