@@ -1,0 +1,2 @@
+NOOBS_NAME="NodeOS DEBUG BUILD"
+NOOBS_DESCRIPTION="A minimal operating system based on raspbian designed to work with the node mesh device"

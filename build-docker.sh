@@ -22,6 +22,7 @@ fi
 
 CONTAINER_NAME=${CONTAINER_NAME:-pigen_work}
 CONTINUE=${CONTINUE:-0}
+DEBUG=${DEBUG:-0}
 
 if [ "$*" != "" ] || [ -z "${IMG_NAME}" ]; then
 	if [ -z "${IMG_NAME}" ]; then
@@ -70,7 +71,7 @@ else
 		"${config_mount[@]}" \
 		pi-gen \
 		bash -e -o pipefail -c "dpkg-reconfigure qemu-user-static &&
-	cd /pi-gen; ./build.sh &&
+	cd /pi-gen; DEBUG=$DEBUG ./build.sh &&
 	rsync -av work/*/build.log deploy/" &
 	wait
 fi
